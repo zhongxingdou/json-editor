@@ -246,7 +246,7 @@ JSONEditor.defaults.resolvers.unshift(function(schema) {
 JSONEditor.defaults.resolvers.unshift(function(schema) {
   if(schema.type === 'boolean') {
     // If explicitly set to 'checkbox', use that
-    if(schema.format === "checkbox" || (schema.options && schema.options.checkbox)) {
+    if(schema.editor === "checkbox" || (schema.options && schema.options.checkbox)) {
       return "checkbox";
     }
     // Otherwise, default to select menu
@@ -274,7 +274,7 @@ JSONEditor.defaults.resolvers.unshift(function(schema) {
 // Use the table editor for arrays with the format set to `table`
 JSONEditor.defaults.resolvers.unshift(function(schema) {
   // Type `array` with format set to `table`
-  if(schema.type == "array" && schema.format == "table") {
+  if(schema.type == "array" && schema.editor == "table") {
     return "table";
   }
 });

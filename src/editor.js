@@ -97,24 +97,23 @@ JSONEditor.AbstractEditor = Class.extend({
       if (typeof value !== 'object') {
         this.dependenciesFulfilled = choices === value;
       } else {
-        Object.keys(choices).some(function(key) {
-          if (!choices.hasOwnProperty(key)) {
-            return false;
-          }
-          if (!value.hasOwnProperty(key) || choices[key] !== value[key]) {
-            self.dependenciesFulfilled = false;
-            return true;
-          }
-          self.dependenciesFulfilled = true;
+        self.dependenciesFulfilled = Object.keys(choices).some(function(key) {
+          return choices.hasOwnProperty(key) &&
+            value.hasOwnProperty(key) &&
+            choices[key] === value[key];
         });
       }
     } else if (typeof choices === 'string' || typeof choices === 'number') {
       this.dependenciesFulfilled = value === choices;
     } else if (typeof choices === 'boolean') {
-      if (choices) {
-        this.dependenciesFulfilled = value && value.length > 0;
+      if (typeof value === 'boolean') {
+        this.dependenciesFulfilled = value;
       } else {
-        this.dependenciesFulfilled = !value || value.length === 0;
+        if (choices) {
+          this.dependenciesFulfilled = value && value.length > 0;
+        } else {
+          this.dependenciesFulfilled = !value || value.length === 0;
+        }
       }
     }
     

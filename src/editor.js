@@ -6,7 +6,7 @@ JSONEditor.AbstractEditor = Class.extend({
     this.onChange(true);
   },
   notify: function() {
-    if(this.path) this.jsoneditor.notifyWatchers(this.path);
+    if(this.path) this.jsoneditor.notifyWatchers(this.path, this.getValue());
   },
   change: function() {
     if(this.parent) this.parent.onChildEditorChange(this);

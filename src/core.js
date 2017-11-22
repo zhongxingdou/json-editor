@@ -305,10 +305,10 @@ JSONEditor.prototype = {
     this.watchlist[path] = newlist.length? newlist : null;
     return this;
   },
-  notifyWatchers: function(path) {
+  notifyWatchers: function(path, value) {
     if(!this.watchlist || !this.watchlist[path]) return this;
     for(var i=0; i<this.watchlist[path].length; i++) {
-      this.watchlist[path][i]();
+      this.watchlist[path][i](value);
     }
   },
   isEnabled: function() {

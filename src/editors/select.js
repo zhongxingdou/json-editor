@@ -325,7 +325,7 @@ JSONEditor.defaults.editors.select = JSONEditor.AbstractEditor.extend({
         this.value = this.typecast(select_options[0] || "");  
         if(this.parent) this.parent.onChildEditorChange(this);
         else this.jsoneditor.onChange();
-        this.jsoneditor.notifyWatchers(this.path);
+        this.jsoneditor.notifyWatchers(this.path, this.value);
       }
 
       this.setupSelect2();

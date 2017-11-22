@@ -122,7 +122,7 @@ JSONEditor.defaults.editors.rating = JSONEditor.defaults.editors.integer.extend(
 
         self.refreshValue();
         self.watch_listener();
-        self.jsoneditor.notifyWatchers(self.path);
+        self.jsoneditor.notifyWatchers(self.path, self.getValue());
         if(self.parent) self.parent.onChildEditorChange(self);
         else self.jsoneditor.onChange();
       });
@@ -144,7 +144,7 @@ JSONEditor.defaults.editors.rating = JSONEditor.defaults.editors.integer.extend(
         self.value = sanitized;
         self.input.value = self.value;
         self.watch_listener();
-        self.jsoneditor.notifyWatchers(self.path);
+        self.jsoneditor.notifyWatchers(self.path, self.value);
         return false;
       }
     });

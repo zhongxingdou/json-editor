@@ -26,7 +26,7 @@ JSONEditor.defaults.editors.multiselect = JSONEditor.AbstractEditor.extend({
     if(!this.options.compact) this.header = this.label = this.theme.getFormInputLabel(this.getTitle());
     if(this.schema.description) this.description = this.theme.getFormInputDescription(this.schema.description);
 
-    if((!this.schema.format && this.option_keys.length < 8) || this.schema.format === "checkbox") {
+    if((!this.schema.editor && this.option_keys.length < 8) || this.schema.editor === "checkbox") {
       this.input_type = 'checkboxes';
 
       this.inputs = {};

@@ -72,7 +72,7 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
 
     var container;
 
-    if(this.format === 'grid') {
+    if(this.editor === 'grid') {
       var rows = [];
       $each(this.property_order, function(j,key) {
         var editor = self.editors[key];

@@ -98,7 +98,7 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
       this.error_holder = document.createElement('div');
       this.container.appendChild(this.error_holder);
 
-      if(this.schema.format === 'tabs') {
+      if(this.schema.editor === 'tabs') {
         this.controls = this.theme.getHeaderButtonHolder();
         this.title.appendChild(this.controls);
         this.tabs_holder = this.theme.getTabHolder();

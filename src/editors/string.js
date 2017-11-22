@@ -70,7 +70,8 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
     if(this.schema.description) this.description = this.theme.getFormInputDescription(this.schema.description);
     if(this.options.infoText) this.infoButton = this.theme.getInfoButton(this.options.infoText);
 
-    this.format = this.schema.editor || this.schema.format;
+    this.format = this.schema.format;
+    this.editor = this.schema.editor || this.schema.format;
     if(!this.format && this.schema.media && this.schema.media.type) {
       this.format = this.schema.media.type.replace(/(^(application|text)\/(x-)?(script\.)?)|(-source$)/g,'');
     }
@@ -82,14 +83,14 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
     }
 
     // Specific format
-    if(this.format) {
+    if(this.editor) {
       // Text Area
-      if(this.format === 'textarea') {
+      if(this.editor === 'textarea') {
         this.input_type = 'textarea';
         this.input = this.theme.getTextareaInput();
       }
       // Range Input
-      else if(this.format === 'range') {
+      else if(this.editor === 'range') {
         this.input_type = 'range';
         var min = this.schema.minimum || 0;
         var max = this.schema.maximum || Math.max(100,min+1);

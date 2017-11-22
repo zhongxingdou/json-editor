@@ -37,7 +37,7 @@ JSONEditor.prototype = {
 
     // Fetch all external refs via ajax
     this._loadExternalRefs(this.schema, function() {
-      self._getDefinitions(self.schema);
+      self._collectDefinitions(self.schema, self.refs);
       
       // Validator options
       var validator_options = {};
@@ -320,14 +320,15 @@ JSONEditor.prototype = {
   disable: function() {
     this.root.disable();
   },
-  _getDefinitions: function(schema,path) {
+  // _getDefinitions
+  _collectDefinitions: function(schema, refs, path) {
     path = path || '#/definitions/';
     if(schema.definitions) {
       for(var i in schema.definitions) {
         if(!schema.definitions.hasOwnProperty(i)) continue;
-        this.refs[path+i] = schema.definitions[i];
+        refs[path+i] = schema.definitions[i];
         if(schema.definitions[i].definitions) {
-          this._getDefinitions(schema.definitions[i],path+i+'/definitions/');
+          this._collectDefinitions(schema.definitions[i],path+i+'/definitions/');
         }
       }
     }

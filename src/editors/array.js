@@ -2,6 +2,11 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
   getDefault: function() {
     return this.schema["default"] || [];
   },
+
+  getItemDefault: function () {
+    return $extend({}, this.schema.items.default);
+  },
+
   register: function() {
     this._super();
     if(this.rows) {
@@ -123,6 +128,10 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
     // Add controls
     this.addControls();
   },
+  postBuild: function () {
+    this._super();
+    this.setupSyncLength();
+  },
   onChildEditorChange: function(editor) {
     this.refreshValue();
     this.refreshTabs(true);
@@ -221,6 +230,69 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
     
     return ret;
   },
+
+  setupSyncLength: function () {
+    var self = this;
+    var option = self.options.syncLength;
+    if (!option) return;
+
+    self.jsoneditor.watch(option.watch, function (watchVal) {
+      if (!self.hasOwnProperty('value')) return;
+      if (watchVal.length === 0 && self.value.length === 0) return;
+
+      if (typeof watchVal === 'number') {
+        self.value.length = watchVal;
+      } else if (Array.isArray(watchVal)) {
+        // remove not exists in watchVal
+        var newValue = self.value.filter(function(item){
+         return watchVal.find(function(watchItem) {
+            if (option.syncKey) {
+              return watchItem[option.syncKey] === item[option.key];
+            } else {
+              return watchItem === item[option.key];
+            }
+         });
+        });
+
+        var watchEditor = self.jsoneditor.getEditor(option.watch);
+        var watchItems = watchEditor.schema.items;
+        watchVal.forEach(function(watchItem, i){
+          // create new item
+          var newItem = self.getItemDefault();
+          newItem[option.key] = option.syncKey ? watchItem[option.syncKey] : watchItem;
+
+          if (option.syncTitle) {
+            var idx = watchItems.enum.indexOf(watchItem);
+            newItem[option.syncTitle] = watchItems.options.enum_titles[idx];
+          }
+
+          if (option.syncKey && option.syncProps) {
+            for(var p in option.syncProps) {
+              newItem[p] = watchItem[option.syncProps[p]];
+            }
+          }
+
+          if (!newValue.find(function(item){
+            return option.syncKey ? watchItem[option.syncKey] === item[option.key] : watchItem === item[option.key];
+          })) {
+            if (newValue[i]) {
+              if (option.syncKey ? watchItem[option.syncKey] !== newValue[i][option.key] : watchItem !== newValue[i][option.key] ) {
+                newValue.splice(i, 0, newItem);
+              }
+            } else {
+              newValue.push(newItem);
+            }
+          }
+        });
+
+        self.setValue(newValue);
+      }
+
+      self.refreshValue();
+      self.change();
+    });
+  },
+
   destroy: function() {
     this.empty(true);
     if(this.title && this.title.parentNode) this.title.parentNode.removeChild(this.title);

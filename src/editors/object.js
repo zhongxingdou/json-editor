@@ -205,7 +205,8 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
     this.cached_editors = {};
     var self = this;
 
-    this.format = this.options.layout || this.options.object_layout || this.schema.format || this.jsoneditor.options.object_layout || 'normal';
+    this.format = this.schema.format;
+    this.editor = this.options.layout || this.options.object_layout || this.schema.format || this.jsoneditor.options.object_layout || 'normal';
 
     this.schema.properties = this.schema.properties || {};
 

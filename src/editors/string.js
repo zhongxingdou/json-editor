@@ -72,14 +72,14 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
 
     this.format = this.schema.format;
     this.editor = this.schema.editor || this.schema.format;
-    if(!this.format && this.schema.media && this.schema.media.type) {
-      this.format = this.schema.media.type.replace(/(^(application|text)\/(x-)?(script\.)?)|(-source$)/g,'');
+    if(!this.editor && this.schema.media && this.schema.media.type) {
+      this.editor = this.schema.media.type.replace(/(^(application|text)\/(x-)?(script\.)?)|(-source$)/g,'');
     }
-    if(!this.format && this.options.default_format) {
-      this.format = this.options.default_format;
+    if(!this.editor && this.options.default_editor) {
+      this.editor = this.options.default_editor;
     }
-    if(this.options.format) {
-      this.format = this.options.format;
+    if(this.options.editor) {
+      this.editor = this.options.editor;
     }
 
     // Specific format
@@ -155,16 +155,16 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
           'vbscript',
           'xml',
           'yaml'
-        ].indexOf(this.format) >= 0
+        ].indexOf(this.editor) >= 0
       ) {
-        this.input_type = this.format;
+        this.input_type = this.editor;
         this.source_code = true;
         
         this.input = this.theme.getTextareaInput();
       }
       // HTML5 Input type
       else {
-        this.input_type = this.format;
+        this.input_type = this.editor;
         this.input = this.theme.getFormInputField(this.input_type);
       }
     }
@@ -253,6 +253,7 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
     }
 
     if(this.format) this.input.setAttribute('data-schemaformat',this.format);
+    if(this.editor) this.input.setAttribute('data-schemaeditor',this.editor);
 
     this.control = this.theme.getFormControl(this.label, this.input, this.description, this.infoButton);
     this.container.appendChild(this.control);

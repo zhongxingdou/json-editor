@@ -92,17 +92,19 @@ JSONEditor.defaults.editors.hidden = JSONEditor.AbstractEditor.extend({
     var self = this;
 
     this.format = this.schema.format;
-    if (!this.format && this.options.default_format) {
-      this.format = this.options.default_format;
+    this.editor = this.schema.editor;
+    if (!this.editor && this.options.default_editor) {
+      this.editor = this.options.default_editor;
     }
-    if (this.options.format) {
-      this.format = this.options.format;
+    if (this.options.editor) {
+      this.editor = this.options.editor;
     }
 
     this.input_type = 'hidden';
     this.input = this.theme.getFormInputField(this.input_type);
 
     if (this.format) this.input.setAttribute('data-schemaformat', this.format);
+    if (this.editor) this.input.setAttribute('data-schemaeditor', this.editor);
 
     this.container.appendChild(this.input);
 

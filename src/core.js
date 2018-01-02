@@ -315,10 +315,10 @@ JSONEditor.prototype = {
     return !this.root || this.root.isEnabled();
   },
   enable: function() {
-    this.root.enable();
+    if (this.root) this.root.enable();
   },
   disable: function() {
-    this.root.disable();
+    if (this.root) this.root.disable();
   },
   // _getDefinitions
   _collectDefinitions: function(schema, refs, path) {

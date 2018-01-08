@@ -240,8 +240,11 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
       if (!self.hasOwnProperty('value')) return;
       if (watchVal.length === 0 && self.value.length === 0) return;
 
-      if (typeof watchVal === 'number') {
-        self.value.length = watchVal;
+      if (typeof watchVal === 'number' || (typeof watchVal === 'string' && !isNaN(watchVal))) {
+        var needAdd = parseInt(watchVal, 10) - self.value.length;
+        while(needAdd--) {
+          self.addRow();
+        }
       } else if (Array.isArray(watchVal)) {
         // remove not exists in watchVal
         var newValue = self.value.filter(function(item){
@@ -289,7 +292,8 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
       }
 
       self.refreshValue();
-      self.change();
+      self.refreshRowButtons();
+      self.change(true);
     });
   },
 

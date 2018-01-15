@@ -170,7 +170,9 @@ JSONEditor.defaults.themes.bootstrap3 = JSONEditor.AbstractTheme.extend({
     return el;
   },
   markTabActive: function(tab) {
-    tab.className += ' active';
+    if (tab.className.indexOf('active') === -1) {
+      tab.className += ' active';
+    }
   },
   markTabInactive: function(tab) {
     tab.className = tab.className.replace(/\s?active/g,'');

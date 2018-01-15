@@ -1521,7 +1521,7 @@ JSONEditor.AbstractEditor = Class.extend({
     }
     
     if (this.dependenciesFulfilled) {
-      wrapper.style.display = 'block';
+      wrapper.style.display = '';
     } else {
       wrapper.style.display = 'none';
     }
@@ -2748,12 +2748,6 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
   },
   register: function() {
     this._super();
-    if(this.editors) {
-      for(var i in this.editors) {
-        if(!this.editors.hasOwnProperty(i)) continue;
-        this.editors[i].register();
-      }
-    }
   },
   unregister: function() {
     this._super();
@@ -3433,6 +3427,9 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
     if(this.title && this.title.parentNode) this.title.parentNode.removeChild(this.title);
     if(this.error_holder && this.error_holder.parentNode) this.error_holder.parentNode.removeChild(this.error_holder);
 
+    $each(this.editors, function(i, editor) {
+      editor.destroy();
+    });
     this.editors = null;
     this.cached_editors = null;
     if(this.editor_holder && this.editor_holder.parentNode) this.editor_holder.parentNode.removeChild(this.editor_holder);
@@ -3716,7 +3713,7 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
     this.hide_delete_last_row_buttons = this.hide_delete_buttons || this.options.disable_array_delete_last_row || this.jsoneditor.options.disable_array_delete_last_row;
     this.hide_move_buttons = this.options.disable_array_reorder || this.jsoneditor.options.disable_array_reorder;
     this.hide_add_button = this.options.disable_array_add || this.jsoneditor.options.disable_array_add;
-	this.show_copy_button = this.options.enable_array_copy || this.jsoneditor.options.enable_array_copy;
+    this.show_copy_button = this.options.enable_array_copy || this.jsoneditor.options.enable_array_copy;
   },
   build: function() {
     var self = this;
@@ -3872,19 +3869,28 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
     var self = this;
     var option = self.options.syncLength;
     if (!option) return;
+    var watchPath = 'root.' + option.watch;
 
-    self.jsoneditor.watch(option.watch, function (watchVal) {
+    var watcher = function (watchVal) {
       if (!self.hasOwnProperty('value')) return;
-      if (watchVal.length === 0 && self.value.length === 0) return;
-
+      var newValue;
       if (typeof watchVal === 'number' || (typeof watchVal === 'string' && !isNaN(watchVal))) {
         var needAdd = parseInt(watchVal, 10) - self.value.length;
-        while(needAdd--) {
-          self.addRow();
+        if (needAdd > 0) {
+          newValue = self.value.slice(0);
+          while(needAdd--) {
+            var newItem = self.getItemDefault();
+            newValue.push(newItem);
+          }
+          self.setValue(newValue);
+        } else if (needAdd < 0) {
+          self.setValue(self.value.slice(0, parseInt(watchVal, 10)));
         }
       } else if (Array.isArray(watchVal)) {
+        if (watchVal.length === 0 && self.value.length === 0) return;
+
         // remove not exists in watchVal
-        var newValue = self.value.filter(function(item){
+        newValue = self.value.filter(function(item){
          return watchVal.find(function(watchItem) {
             if (option.syncKey) {
               return watchItem[option.syncKey] === item[option.key];
@@ -3894,7 +3900,7 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
          });
         });
 
-        var watchEditor = self.jsoneditor.getEditor(option.watch);
+        var watchEditor = self.jsoneditor.getEditor(watchPath);
         var watchItems = watchEditor.schema.items;
         watchVal.forEach(function(watchItem, i){
           // create new item
@@ -3927,11 +3933,16 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
 
         self.setValue(newValue);
       }
+    };
 
-      self.refreshValue();
-      self.refreshRowButtons();
-      self.change(true);
-    });
+    self.jsoneditor.watch(watchPath, watcher);
+
+    var editor = self.jsoneditor.getEditor(watchPath);
+    if (editor) {
+      window.requestAnimationFrame(function(){
+        watcher(editor.getValue());
+      });
+    }
   },
 
   destroy: function() {
@@ -3963,6 +3974,12 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
   destroyRow: function(row,hard) {
     var holder = row.container;
     if(hard) {
+      if (row.editors) {
+        for(var item in row.editors) {
+          row.editors[item].destroy();
+        }
+      }
+
       row.destroy();
       if(holder.parentNode) holder.parentNode.removeChild(holder);
       if(row.tab && row.tab.parentNode) row.tab.parentNode.removeChild(row.tab);
@@ -4589,6 +4606,8 @@ JSONEditor.defaults.editors.table = JSONEditor.defaults.editors.array.extend({
     return ret;
   },
   destroy: function() {
+    this._super();
+
     this.innerHTML = '';
     if(this.title && this.title.parentNode) this.title.parentNode.removeChild(this.title);
     if(this.description && this.description.parentNode) this.description.parentNode.removeChild(this.description);
@@ -4597,8 +4616,6 @@ JSONEditor.defaults.editors.table = JSONEditor.defaults.editors.array.extend({
     if(this.panel && this.panel.parentNode) this.panel.parentNode.removeChild(this.panel);
 
     this.rows = this.title = this.description = this.row_holder = this.table = this.panel = null;
-
-    this._super();
   },
   setValue: function(value, initial) {
     // Update the array's value, adding/removing rows when necessary
@@ -7450,7 +7467,9 @@ JSONEditor.defaults.themes.bootstrap3 = JSONEditor.AbstractTheme.extend({
     return el;
   },
   markTabActive: function(tab) {
-    tab.className += ' active';
+    if (tab.className.indexOf('active') === -1) {
+      tab.className += ' active';
+    }
   },
   markTabInactive: function(tab) {
     tab.className = tab.className.replace(/\s?active/g,'');

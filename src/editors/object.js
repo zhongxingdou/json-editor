@@ -692,6 +692,9 @@ JSONEditor.defaults.editors.object = JSONEditor.AbstractEditor.extend({
     if(this.title && this.title.parentNode) this.title.parentNode.removeChild(this.title);
     if(this.error_holder && this.error_holder.parentNode) this.error_holder.parentNode.removeChild(this.error_holder);
 
+    $each(this.editors, function(i, editor) {
+      editor.destroy();
+    });
     this.editors = null;
     this.cached_editors = null;
     if(this.editor_holder && this.editor_holder.parentNode) this.editor_holder.parentNode.removeChild(this.editor_holder);

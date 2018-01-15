@@ -135,6 +135,8 @@ JSONEditor.defaults.editors.table = JSONEditor.defaults.editors.array.extend({
     return ret;
   },
   destroy: function() {
+    this._super();
+
     this.innerHTML = '';
     if(this.title && this.title.parentNode) this.title.parentNode.removeChild(this.title);
     if(this.description && this.description.parentNode) this.description.parentNode.removeChild(this.description);
@@ -143,8 +145,6 @@ JSONEditor.defaults.editors.table = JSONEditor.defaults.editors.array.extend({
     if(this.panel && this.panel.parentNode) this.panel.parentNode.removeChild(this.panel);
 
     this.rows = this.title = this.description = this.row_holder = this.table = this.panel = null;
-
-    this._super();
   },
   setValue: function(value, initial) {
     // Update the array's value, adding/removing rows when necessary

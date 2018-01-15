@@ -79,7 +79,7 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
     this.hide_delete_last_row_buttons = this.hide_delete_buttons || this.options.disable_array_delete_last_row || this.jsoneditor.options.disable_array_delete_last_row;
     this.hide_move_buttons = this.options.disable_array_reorder || this.jsoneditor.options.disable_array_reorder;
     this.hide_add_button = this.options.disable_array_add || this.jsoneditor.options.disable_array_add;
-	this.show_copy_button = this.options.enable_array_copy || this.jsoneditor.options.enable_array_copy;
+    this.show_copy_button = this.options.enable_array_copy || this.jsoneditor.options.enable_array_copy;
   },
   build: function() {
     var self = this;
@@ -235,19 +235,28 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
     var self = this;
     var option = self.options.syncLength;
     if (!option) return;
+    var watchPath = 'root.' + option.watch;
 
-    self.jsoneditor.watch(option.watch, function (watchVal) {
+    var watcher = function (watchVal) {
       if (!self.hasOwnProperty('value')) return;
-      if (watchVal.length === 0 && self.value.length === 0) return;
-
+      var newValue;
       if (typeof watchVal === 'number' || (typeof watchVal === 'string' && !isNaN(watchVal))) {
         var needAdd = parseInt(watchVal, 10) - self.value.length;
-        while(needAdd--) {
-          self.addRow();
+        if (needAdd > 0) {
+          newValue = self.value.slice(0);
+          while(needAdd--) {
+            var newItem = self.getItemDefault();
+            newValue.push(newItem);
+          }
+          self.setValue(newValue);
+        } else if (needAdd < 0) {
+          self.setValue(self.value.slice(0, parseInt(watchVal, 10)));
         }
       } else if (Array.isArray(watchVal)) {
+        if (watchVal.length === 0 && self.value.length === 0) return;
+
         // remove not exists in watchVal
-        var newValue = self.value.filter(function(item){
+        newValue = self.value.filter(function(item){
          return watchVal.find(function(watchItem) {
             if (option.syncKey) {
               return watchItem[option.syncKey] === item[option.key];
@@ -257,7 +266,7 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
          });
         });
 
-        var watchEditor = self.jsoneditor.getEditor(option.watch);
+        var watchEditor = self.jsoneditor.getEditor(watchPath);
         var watchItems = watchEditor.schema.items;
         watchVal.forEach(function(watchItem, i){
           // create new item
@@ -290,11 +299,16 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
 
         self.setValue(newValue);
       }
+    };
 
-      self.refreshValue();
-      self.refreshRowButtons();
-      self.change(true);
-    });
+    self.jsoneditor.watch(watchPath, watcher);
+
+    var editor = self.jsoneditor.getEditor(watchPath);
+    if (editor) {
+      window.requestAnimationFrame(function(){
+        watcher(editor.getValue());
+      });
+    }
   },
 
   destroy: function() {

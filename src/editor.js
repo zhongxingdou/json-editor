@@ -122,7 +122,7 @@ JSONEditor.AbstractEditor = Class.extend({
     }
     
     if (this.dependenciesFulfilled) {
-      wrapper.style.display = 'block';
+      wrapper.style.display = '';
     } else {
       wrapper.style.display = 'none';
     }

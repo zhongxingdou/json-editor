@@ -340,6 +340,12 @@ JSONEditor.defaults.editors.array = JSONEditor.AbstractEditor.extend({
   destroyRow: function(row,hard) {
     var holder = row.container;
     if(hard) {
+      if (row.editors) {
+        for(var item in row.editors) {
+          row.editors[item].destroy();
+        }
+      }
+
       row.destroy();
       if(holder.parentNode) holder.parentNode.removeChild(holder);
       if(row.tab && row.tab.parentNode) row.tab.parentNode.removeChild(row.tab);

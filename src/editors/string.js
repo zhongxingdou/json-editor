@@ -217,6 +217,7 @@ JSONEditor.defaults.editors.string = JSONEditor.AbstractEditor.extend({
       });
       
     if(this.options.input_height) this.input.style.height = this.options.input_height;
+    if(this.options.placeholder) this.input.setAttribute('placeholder', this.options.placeholder);
     if(this.options.expand_height) {
       this.adjust_height = function(el) {
         if(!el) return;
